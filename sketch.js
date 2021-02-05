@@ -8,17 +8,21 @@ var spaceship,spaceshipImg;
 // variable for the space station and its image
 var spaceStation,spaceStationImg;
 // variables for intro images
-var introImage,introImageImg 
+var introImage,introImageImg;
 // variable for score
 var score = 0;
-
-var startButton,startButtonImg
+// variables for start button and its image
+var startButton,startButtonImg;
+// variables for restart button and its image
+var restartButton,restartButtonImg;
 // making a variable for game state
 var gameState = 0;
 // making variables for each variable
 var WAIT = 0
 var PLAY = 1;
 var END = 2;
+
+var timerValue = 20;
 
 // image loading function
 function preload(){
@@ -31,9 +35,11 @@ function preload(){
     // loading the space station's image into its variable
     spaceStationImg = loadImage("Images/Space Station and Astros.jpg");
     // loading the intro image into its variable
-    introImageImg = loadImage("Images/Intro Image.jpg")
-    //  loading the start button image into its variable
+    introImageImg = loadImage("Images/Intro Image.jpg");
+    // loading the start button image into its variable
     startButtonImg = loadImage("Images/Start Button Image.jpg");
+    // loading the start button image into its variable
+    restartButtonImg = loadImage("Images/Restart Button Image.jpg");  
 }
 
 // function for creating sprites and addind images to the sprites
@@ -55,31 +61,66 @@ function setup(){
     startButton = createSprite(displayWidth/2+450,displayHeight/2);
     startButton.addImage(startButtonImg);
     startButton.scale = 0.2;
-  
+    // making the restart button and adding its image
+    restartButton = createSprite(displayWidth/2,displayHeight/2);
+    restartButton.addImage(restartButtonImg);
+    restartButton.scale = 0.2   
+
+    textSize(20);
+    fill("");
+    setInterval(timeIt,1000);
+
 
     
 }
 
 // functions making background and other mechanical function
 function draw(){
-
-    // making an if condition to arrange the function according the game states
-    if(gameState === 0){
-        background(0);
+    // changing the background 
+    background(0);
+    // making an if condition to arrange the function according the game states    
+        // adding text 
         fill("white");
         textSize(50);
         text("Welcome to the Space Mission",displayWidth/2-120,displayHeight/2-50);
-        spaceship.visible = false;
+        // making the start button visible
+        startButton.visible = true;
+        // making everything invisible
+        spaceship.visible =false;
         spaceStation.visible = false;
         blackhole.visible = false;
+        // adding an image for the intro
         image(introImageImg,0,displayHeight/2-100);
+        // making the resart button invisible
+        restartButton.visible = false;
+        // making the start button accessable
         if(mousePressedOver(startButton)){
             gameState = 1;
         }
-    }
+
+
+    
+
     if(gameState === 1){
         // adding the background to the main output
         background(backgroundImg);
+        // code to display the timer
+        if (timerValue >= 10) {
+            text("0:" + timerValue, displayWidth / 2-500, displayHeight /2-250);
+        }
+        if (timerValue < 10) {
+        text('0:0' + timerValue, displayWidth / 2-500, displayHeight /2-250);
+        }
+        if (timerValue == 0) {
+            text( displayWidth / 2-500, displayHeight /2-250);
+        }
+        // making the restart button invisible
+        restartButton.visible = false;
+        // making everything visible back again
+        spaceship.visible = true;
+        spaceStation.visible = true;
+        blackhole.visible = true;
+        //startButton.visible = true;
         // displaying the scores
         fill("#7AD3D0");
         textSize(35);
@@ -100,20 +141,29 @@ function draw(){
         if(keyIsDown(DOWN_ARROW)){
         spaceship.velocityY = 1;
         }
-        // making the spaceship stop when reaches the spacestation
-        if(spaceship.isTouching(spaceStation) ){
-        spaceship.velocityX = 0;
-        spaceship.velocityY = 0;         
-        }    
 
+        // making the spaceship stop when reaches the spacestation
+        if(spaceship.isTouching(spaceStation) ){   
+            background(0);         
+            spaceship.velocityX = 0;
+            spaceship.velocityY = 0;  
+            timerValue = 0;
+            textSize(50);
+            text("You Win",displayWidth/2-100,displayHeight/2);
+            spaceship.visible = false;
+            spaceStation.visible = false;
+            blackhole.visible = false;                       
+        }
+
+        
 
     }
-
     if(spaceship.isTouching(blackhole)){
-        spaceship.remove();
+        spaceship.visible = false;
         gameState = 2;        
         
     }
+
     // making an if condition for displaying the text
     if(gameState === 2){
         background("black");
@@ -123,17 +173,35 @@ function draw(){
         blackhole.visible = false;
         // vanishing the space station in the last stage
         spaceStation.visible = false;
+        // adding the text for displaying game over
         fill("white");
         textSize(50);
-        text("Game Over",displayWidth/2-100,displayHeight/2-50);    
-       
+        text("Game Over",displayWidth/2-100,displayHeight/2-50);   
+        restartButton.visible = true;
+        spaceship.velocityX = 0; 
+        restartButton.visible = false;
     }
-
-    
-   
-    
-    
-
-drawSprites();
+    if(mousePressedOver(restartButton)){
+        reset();
+        // gameState = 0;   
+        // Score = 0;                  
+        // blackhole.visible = false;
+        // spaceStation.visible = false;
+        // spaceship.visible = false;
+    }    
+    drawSprites();
 }
 
+function reset(){
+    gameState = 0;
+    score = 0;
+    // spaceship.visible = true;
+    // restartButton.visible = false;
+    
+}
+
+function timeIt() {
+    if (timerValue > 0) {
+      timerValue--;
+    }
+  }
